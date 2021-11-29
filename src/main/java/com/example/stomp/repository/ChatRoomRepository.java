@@ -28,8 +28,6 @@ public class ChatRoomRepository {
     private ListOperations<String, Object> opsListChatRoom;
     //채팅 방의 대화 메시지 발행하기 위한 redis topic 저보.
     private Map<String, ChannelTopic> topics;
-    private RoomRepository roomRepository;
-
 
     @PostConstruct // WAS가 올라가면서 bean이 생성 될 때 딱 한번 초기화
     private void init() {
@@ -57,7 +55,6 @@ public class ChatRoomRepository {
         //서버 간 채팅방 공유를 위해 redis hash에 저장
         opsHashChatRoom.put("CHAT_ROOM", chatRoom.getRoomId(),chatRoom);
         opsListChatRoom.leftPush("chatRoom", chatRoom);
-       //roomRepository.save(chatRoom);
         return chatRoom;
     }
     public void enterChatRoom(String roomId) {
