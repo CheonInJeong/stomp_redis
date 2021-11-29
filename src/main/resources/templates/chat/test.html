@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <!-- 합쳐지고 최소화된 최신 CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+
+  <!-- 부가적인 테마 -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+
+  <!-- 합쳐지고 최소화된 최신 자바스크립트 -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+  <script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+<div class="container">
+  <div class="col-6">
+    <h1>[[${room.name}]]</h1>
+  </div>
+  <div>
+    <div id="msgArea" class="col"></div>
+    <div class="col-6">
+      <div class="input-group mb-3">
+        <input type="text" id="msg" class="form-control">
+        <div class="input-group-append">
+          <button class="btn btn-outline-secondary" type="button" id="button-send">전송</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6"></div>
+</div>
+</body>
+<script th:inline="javascript">
+  /*<![CDATA[*/
+  var roomName = /*[[${room.name}]]*/;
+  console.log(roomName);
+  /*]]>*/
+</script>
+</html>
+
