@@ -25,7 +25,7 @@ public class ChatRoomRepository {
     private final RedisSubscriber redisSubscriber;
     private final RedisTemplate<String,Object> redisTemplate;
     private HashOperations<String,String,ChatRoom> opsHashChatRoom;
-    private ListOperations<String, ChatRoom> opsListChatRoom;
+    private ListOperations<String, Object> opsListChatRoom;
     //채팅 방의 대화 메시지 발행하기 위한 redis topic 저보.
     private Map<String, ChannelTopic> topics;
     private RoomRepository roomRepository;
@@ -35,6 +35,7 @@ public class ChatRoomRepository {
     private void init() {
         //chatRoomMap = new LinkedHashMap<>();
         opsHashChatRoom = redisTemplate.opsForHash();
+        opsListChatRoom = redisTemplate.opsForList();
         topics = new HashMap<>();
     }
 
