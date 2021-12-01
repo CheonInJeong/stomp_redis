@@ -40,18 +40,30 @@ public class StompChatClient {
         System.out.println("연결성공");
         chatMessage.setMessage(chatMessage.getWriter() + "님이 채팅방에 참여하셨습니다.");
         chatRoomRepository.enterChatRoom(chatMessage.getRoomId());
-        messagingTemplate.convertAndSend("/sub/chat/room/" + chatMessage.getRoomId(), chatMessage);
 
+        List<ChatMessage> privateChatList = opsHashChatMessage.get("chatMessage:"+chatMessage.getRoomId(), chatMessage.getRoomId());
+
+        if (privateChatList == null) {
+            privateChatList = new ArrayList<>();
+        }
+        privateChatList.add(chatMessage);
+
+        opsHashChatMessage.put("chatMessage:" + chatMessage.getRoomId(), chatMessage.getRoomId(), privateChatList);
+        //메세지 보내기
         redisPublisher.publish(chatRoomRepository.getTopic(chatMessage.getRoomId()), chatMessage);
     }
 
     @MessageMapping(value = "/chat/message")
     public void message(ChatMessage chatMessage) throws IOException {
-        //messageRepository.save(chatMessage);
-      chatMessageList.add(chatMessage);
-      //TODO hashmap 안에 hashmap 안에 list를 넣어야하나? 아니면 hashmap을 roomId별로 여러개 생성?
-        redisTemplate.expire("chatMessage:"+chatMessage.getRoomId(), 30, TimeUnit.SECONDS);
-      opsHashChatMessage.put("chatMessage:"+chatMessage.getRoomId(), chatMessage.getRoomId(), chatMessageList);
-      messagingTemplate.convertAndSend("/sub/chat/room/"+chatMessage.getRoomId(),chatMessage);
+
+      List<ChatMessage> privateChatList = opsHashChatMessage.get("chatMessage:"+chatMessage.getRoomId(), chatMessage.getRoomId());
+
+      if (privateChatList == null) {
+          privateChatList = new ArrayList<>();
+      }
+      privateChatList.add(chatMessage);
+      opsHashChatMessage.put("chatMessage:"+chatMessage.getRoomId(), chatMessage.getRoomId(), privateChatList);
+      //messagingTemplate.convertAndSend("/sub/chat/room/"+chatMessage.getRoomId(),chatMessage);
+      redisPublisher.publish(chatRoomRepository.getTopic(chatMessage.getRoomId()),chatMessage);
     }
 }

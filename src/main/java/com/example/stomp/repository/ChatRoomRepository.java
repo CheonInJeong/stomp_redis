@@ -28,39 +28,31 @@ public class ChatRoomRepository {
     private final RedisTemplate<String,Object> redisTemplate;
     private HashOperations<String,String,ChatRoom> opsHashChatRoom;
     private ListOperations<String, Object> opsListChatRoom;
-    private HashOperations<String,String, List<ChatMessage>> opsHashChatMessage;
     //채팅 방의 대화 메시지 발행하기 위한 redis topic 저보.
     private Map<String, ChannelTopic> topics;
-    private List<ChatMessage> chatMessageList;
+    private HashOperations<String,String, List<ChatMessage>> opsHashChaMessage;
+
 
     @PostConstruct // WAS가 올라가면서 bean이 생성 될 때 딱 한번 초기화
     private void init() {
-        //chatRoomMap = new LinkedHashMap<>();
         opsHashChatRoom = redisTemplate.opsForHash();
         opsListChatRoom = redisTemplate.opsForList();
-        opsHashChatMessage = redisTemplate.opsForHash();
-        chatMessageList = new ArrayList<>();
+        opsHashChaMessage = redisTemplate.opsForHash();
         topics = new HashMap<>();
     }
 
     public List<ChatRoom> findAllRooms() {
-        /*List<ChatRoom> chatRoomList = new ArrayList<>(chatRoomMap.values());
-        Collections.reverse(chatRoomList); //채팅방 생성 순서 최근 순으로 반환
-        return chatRoomList;*/
         return opsHashChatRoom.values("CHAT_ROOM");
     }
 
     public ChatRoom findByRoomId(String roomId) {
-        //return chatRoomMap.get(roomId);
         return opsHashChatRoom.get("CHAT_ROOM", roomId);
     }
 
     public ChatRoom createChatRoom(String name) {
         ChatRoom chatRoom = ChatRoom.createChatRoom(name);
-        //chatRoomMap.put(chatRoom.getRoomId(),chatRoom);
         //서버 간 채팅방 공유를 위해 redis hash에 저장
         opsHashChatRoom.put("CHAT_ROOM", chatRoom.getRoomId(),chatRoom);
-        opsListChatRoom.leftPush("chatRoom", chatRoom);
         return chatRoom;
     }
     public void enterChatRoom(String roomId) {
@@ -77,18 +69,12 @@ public class ChatRoomRepository {
     }
 
     public List<ChatMessage> getChatHistory(String roomId) {
-        Gson gson = new Gson();
-        System.out.println(opsHashChatMessage.get("chatMessage:"+roomId,roomId));
-        List<ChatMessage> list = opsHashChatMessage.get("chatMessage:"+roomId,roomId);
-
-        if (list == null) {
+        List<ChatMessage> chatHistory = new ArrayList<>();
+        chatHistory = opsHashChaMessage.get("chatMessage:"+ roomId, roomId);
+        if (chatHistory!=null) {
+            return chatHistory;
+        } else {
             return null;
         }
-
-            for (int i=0; i< list.size(); i++) {
-                System.out.println(gson.toJson(list.get(i),ChatMessage.class));
-            }
-            return list;
-
     }
 }

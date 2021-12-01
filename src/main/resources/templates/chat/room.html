@@ -18,17 +18,17 @@
     <div class="col-6">
       <h1>[[${room.name}]]</h1>
     </div>
-    <div>
-      <div>채팅 히스토리</div>
-      <div>
-        <th:block  th:if="${#lists.size(chatHistory)}>0" th:each="chat:${chatHistory}">
-          [[${chat.writer}]] : [[${chat.message}]]<br>
-        </th:block>
 
-      </div>
-    </div>
     <div>
-      <div id="msgArea" class="col"></div>
+      <div id="msgArea" class="col">
+        <div class="col-6">
+          <div class="alert alert-secondary">
+            <th:block  th:if="${#lists.size(chatHistory)}>0" th:each="chat:${chatHistory}">
+              <p>[[${chat.writer}]] : [[${chat.message}]]</p>
+            </th:block>
+          </div>
+        </div>
+      </div>
       <div class="col-6">
         <div class="input-group mb-3">
           <input type="text" id="msg" class="form-control">
@@ -50,7 +50,6 @@
     var roomId = /*[[${room.roomId}]]*/;
     var username = prompt("what's your name?");
 
-    console.log(roomName + ", " + roomId + ", " + username);
 
     var sockJs = new SockJS("/stomp/chat");
     //1. SockJS를 내부에 들고있는 stomp를 내어줌
@@ -58,7 +57,6 @@
 
     //2. connection이 맺어지면 실행
     stomp.connect({}, function (){
-      console.log("STOMP Connection")
 
       //4. subscribe(path, callback)으로 메세지를 받을 수 있음
       stomp.subscribe("/sub/chat/room/" + roomId, function (chat) {
