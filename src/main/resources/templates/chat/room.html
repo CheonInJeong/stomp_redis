@@ -19,6 +19,15 @@
       <h1>[[${room.name}]]</h1>
     </div>
     <div>
+      <div>채팅 히스토리</div>
+      <div>
+        <th:block  th:if="${#lists.size(chatHistory)}>0" th:each="chat:${chatHistory}">
+          [[${chat.writer}]] : [[${chat.message}]]<br>
+        </th:block>
+
+      </div>
+    </div>
+    <div>
       <div id="msgArea" class="col"></div>
       <div class="col-6">
         <div class="input-group mb-3">
