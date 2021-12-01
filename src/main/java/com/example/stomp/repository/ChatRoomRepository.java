@@ -1,7 +1,9 @@
 package com.example.stomp.repository;
 
 import com.example.stomp.service.RedisSubscriber;
+import com.example.stomp.vo.ChatMessage;
 import com.example.stomp.vo.ChatRoom;
+import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.HashOperations;
@@ -26,14 +28,18 @@ public class ChatRoomRepository {
     private final RedisTemplate<String,Object> redisTemplate;
     private HashOperations<String,String,ChatRoom> opsHashChatRoom;
     private ListOperations<String, Object> opsListChatRoom;
+    private HashOperations<String,String, List<ChatMessage>> opsHashChatMessage;
     //채팅 방의 대화 메시지 발행하기 위한 redis topic 저보.
     private Map<String, ChannelTopic> topics;
+    private List<ChatMessage> chatMessageList;
 
     @PostConstruct // WAS가 올라가면서 bean이 생성 될 때 딱 한번 초기화
     private void init() {
         //chatRoomMap = new LinkedHashMap<>();
         opsHashChatRoom = redisTemplate.opsForHash();
         opsListChatRoom = redisTemplate.opsForList();
+        opsHashChatMessage = redisTemplate.opsForHash();
+        chatMessageList = new ArrayList<>();
         topics = new HashMap<>();
     }
 
@@ -68,5 +74,21 @@ public class ChatRoomRepository {
 
     public ChannelTopic getTopic(String roomId) {
         return topics.get(roomId);
+    }
+
+    public List<ChatMessage> getChatHistory(String roomId) {
+        Gson gson = new Gson();
+        System.out.println(opsHashChatMessage.get("chatMessage:"+roomId,roomId));
+        List<ChatMessage> list = opsHashChatMessage.get("chatMessage:"+roomId,roomId);
+
+        if (list == null) {
+            return null;
+        }
+
+            for (int i=0; i< list.size(); i++) {
+                System.out.println(gson.toJson(list.get(i),ChatMessage.class));
+            }
+            return list;
+
     }
 }

@@ -18,6 +18,7 @@ import java.io.DataInput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Controller
 @RequiredArgsConstructor
@@ -49,14 +50,8 @@ public class StompChatClient {
         //messageRepository.save(chatMessage);
       chatMessageList.add(chatMessage);
       //TODO hashmap 안에 hashmap 안에 list를 넣어야하나? 아니면 hashmap을 roomId별로 여러개 생성?
-      opsHashChatMessage.put("chatMessage", chatMessage.getRoomId(), chatMessageList);
-
-      Gson gson = new Gson();
-      System.out.println(opsHashChatMessage.get("chatMessage",chatMessage.getRoomId()));
-      List<ChatMessage> list = opsHashChatMessage.get("chatMessage",chatMessage.getRoomId());
-      for (int i=0; i< list.size(); i++) {
-          System.out.println(gson.toJson(list.get(i),ChatMessage.class));
-      }
-        messagingTemplate.convertAndSend("/sub/chat/room/"+chatMessage.getRoomId(),chatMessage);
+        redisTemplate.expire("chatMessage:"+chatMessage.getRoomId(), 30, TimeUnit.SECONDS);
+      opsHashChatMessage.put("chatMessage:"+chatMessage.getRoomId(), chatMessage.getRoomId(), chatMessageList);
+      messagingTemplate.convertAndSend("/sub/chat/room/"+chatMessage.getRoomId(),chatMessage);
     }
 }
